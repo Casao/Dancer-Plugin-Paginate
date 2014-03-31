@@ -3,6 +3,7 @@ ignore.txt
 lib/Dancer/Plugin/Paginate.pm
 Makefile.PL
 MANIFEST			This list of files
+MANIFEST.SKIP
 README
 t/00-load.t
 t/01-basic.t
