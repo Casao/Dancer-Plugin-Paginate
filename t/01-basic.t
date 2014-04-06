@@ -41,5 +41,15 @@ is $total_response->header('Content-Range'), '0-24/100', "Content-Range's total 
 my $range_response = dancer_response(GET => '/range', { headers => $headers });
 is $range_response->header('Content-Range'), '0-100/*', "Content-Range was set to 0-100 properly";
 
+my $params = {
+    'Start' => 0,
+    'End' => 24,
+    'Range-Unit' => 'Item'
+};
+
+my $params_response = dancer_response(GET => '/page', { params => $params, headers => [ 'X-Requested-With' => 'XMLHttpRequest' ] });
+is $params_response->header('Content-Range'), '0-24/*', "Content-Range is returned from parameters";
+is $params_response->header('Range-Unit'), 'Item', "Range-Unit is returned from parameters";
+
 done_testing();
 

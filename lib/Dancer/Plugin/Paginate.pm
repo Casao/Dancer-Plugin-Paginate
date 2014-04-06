@@ -6,7 +6,6 @@ use warnings;
 use Dancer ':syntax';
 use Dancer::Plugin;
 
-
 =head1 NAME
 
 Dancer::Plugin::Paginate - HTTP 1.1 Range-based Pagination for Dancer apps.
@@ -34,30 +33,66 @@ To use, simply add the "paginate" keyword to any route that should support HTTP 
     get '/secret' => paginate sub { ... }
     ...
 
+=head1 Configuration Options
+
+=cut
+
+my $settings = plugin_setting;
+
+=head2 Ajax-Only
+
+Options: I<true|false>
+Default: B<true>
+
+Determines if paginate should only operate on Ajax requests.
+
+=cut
+
+my $ajax_only = $settings->{'Ajax-Only'} || true;
+
+=head2 Mode
+
+Options: I<headers|parameters|both>
+Default: B<headers>
+
+Controls if paginate will look for the pagination in the headers, parameters, or both.
+
+If set to both, headers will be preferred.
+
+=cut
+
+my $mode = $settings->{Mode} || 'headers';
+
 =head1 Keywords
 
 =head2 paginate
 
-The paginate keyword serves as a wrapper. It will:
+The paginate keyword is used to add a pagination processing to a route. It will:
 
 =over
 
-=item Confirm the incoming request is AJAX
-=item Determine if Range and Range-Unit are headers in it
-=item Define these 2 as vars using Dancer's var keyword
-=item Run the provided coderef
-=item If the coderef returns without error, add the proper headers to the response
+=item Check if the request is AJAX (and stop processing if set to ajax-only).
+=item Extract the data from Headers, Parameters, or Both.
+=item Store these in vars.
+=item Run the provided coderef for the route.
+=item Add proper headers and change status to 206 if coderef was successful.
 
 =back
 
-Range will be provided as an arrayref as [start, end].
-Range Unit is provided.
+Vars:
+
+=over
+
+=item range - An arrayref of [start, end]
+=item range_unit - The Range Unit provided in the request.
+
+=back
 
 In your response, you an optionally provide the following vars to customize response:
 
 =over
 
-=item Total - The total count of items. Will be replaced with '*' if not provided.
+=item total - The total count of items. Will be replaced with '*' if not provided.
 =item return_range - An arrayref of provided [start, end] values in your response. Original will be reused if not provided.
 =item return_range_unit - The unit of the range in your response. Original will be reused if not provided.
 
@@ -68,16 +103,32 @@ In your response, you an optionally provide the following vars to customize resp
 sub paginate {
     my $coderef = shift;
     return sub {
-        unless ( request->is_ajax() ) {
+        if ($ajax_only) {
+            return $coderef->() unless request->is_ajax();
+        }
+        my $range;
+        if ($mode =~ m/headers/i) {
+            $range = _parse_headers(request->header('Range'), request->header('Range-Unit'));
+            return $coderef->() unless defined $range->{Start};
+        }
+        elsif ($mode =~ m/parameters/i) {
+            $range = _parse_parameters(request->params);
+            return $coderef->() unless defined $range->{Start};
+        }
+        elsif ($mode =~ m/both/i) {
+            $range = _parse_headers(request->header('Range'), request->header('Range-Unit'));
+            unless (defined $range->{Start}) {
+                my %params = request->params;
+                $range = _parse_parameters(\%params);
+            }
+            return $coderef->() unless defined $range->{Start};
+        }
+        else {
+            Dancer::Logger::warning("[Dancer::Plugin::Paginate] Mode set to an invalid value. Valid values: [headers|parameters|both]");
             return $coderef->();
         }
-        my $range      = request->header('Range');
-        my $range_unit = request->header('Range-Unit');
-        unless ( defined $range && defined $range_unit ) {
-            return $coderef->();
-        }
-        var range => [split '-', $range];
-        var range_unit => $range_unit;
+        var range => [$range->{Start}, $range->{End}];
+        var range_unit => $range->{Unit};
         my $content  = $coderef->();
         my $response = Dancer::SharedData->response;
         $response->content($content);
@@ -95,14 +146,14 @@ sub paginate {
         my $returned_range_string = "${$returned_range}[0]-${$returned_range}[1]";
         my $returned_range_unit = var 'return_range_unit';
         unless ($returned_range_unit) {
-            $returned_range_unit = $range_unit;
+            $returned_range_unit = $range->{Unit};
         }
         my $content_range = "$returned_range_string/$total";
         $response->header( 'Content-Range' => $content_range );
         $response->header( 'Range-Unit'    => $returned_range_unit );
         my $accept_ranges = var 'accept_ranges';
         unless ($accept_ranges) {
-            $accept_ranges = $range_unit;
+            $accept_ranges = $range->{Unit};
         }
         $response->header( 'Accept-Ranges' => $accept_ranges );
         $response->status(206);
@@ -112,6 +163,41 @@ sub paginate {
 
 register paginate => \&paginate;
 
+sub _parse_headers {
+    my ($range, $unit) = @_;
+
+    unless (defined $unit) {
+        return {}; # Unit is required
+    }
+    
+    my ($start, $end) = split '-', $range;
+    unless (defined $start && defined $end) {
+        return {}; # If we can't parse the start and end, forget it.
+    }
+
+    my $results = {
+        Start => $start,
+        End => $end,
+        Unit => $unit
+    };
+    return $results;
+}
+
+sub _parse_parameters {
+    my $params = shift;
+    my $start = $params->{'Start'};
+    my $end = $params->{'End'};
+    my $unit = $params->{'Range-Unit'};
+    unless (defined $start && defined $end && defined $unit) {
+        return {};
+    }
+    my $results = {
+        Start => $start,
+        End => $end,
+        Unit => $unit
+    };
+    return $results;
+}
 
 =head1 AUTHOR
 
@@ -139,7 +225,7 @@ against the repo at:
 
 My thanks to David Precious, C<< <davidp at preshweb.co.uk> >> for his
 Dancer::Plugin::Auth::Extensible framework, which provided the Keyword
-syntax used by this module.
+syntax used by this module. Parts were also used for testing purposes.
 
 
 =head1 LICENSE AND COPYRIGHT

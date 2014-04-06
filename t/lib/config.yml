@@ -26,3 +26,6 @@ template: "simple"
 #     start_tag: '[%'
 #     end_tag:   '%]'
 
+plugins:
+    Paginate:
+        Mode: "both"
