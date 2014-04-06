@@ -40,21 +40,23 @@ Keywords
     It will:
 
     Check if the request is AJAX (and stop processing if set to ajax-only).
-    =item Extract the data from Headers, Parameters, or Both. =item Store
-    these in vars. =item Run the provided coderef for the route. =item Add
-    proper headers and change status to 206 if coderef was successful.
+    Extract the data from Headers, Parameters, or Both.
+    Store these in vars.
+    Run the provided coderef for the route.
+    Add proper headers and change status to 206 if coderef was successful.
 
     Vars:
 
-    range - An arrayref of [start, end] =item range_unit - The Range Unit
-    provided in the request.
+    range - An arrayref of [start, end]
+    range_unit - The Range Unit provided in the request.
 
     In your response, you an optionally provide the following vars to
     customize response:
 
     total - The total count of items. Will be replaced with '*' if not
-    provided. =item return_range - An arrayref of provided [start, end]
-    values in your response. Original will be reused if not provided. =item
+    provided.
+    return_range - An arrayref of provided [start, end] values in your
+    response. Original will be reused if not provided.
     return_range_unit - The unit of the range in your response. Original
     will be reused if not provided.
 

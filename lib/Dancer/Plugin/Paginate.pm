@@ -72,9 +72,13 @@ The paginate keyword is used to add a pagination processing to a route. It will:
 =over
 
 =item Check if the request is AJAX (and stop processing if set to ajax-only).
+
 =item Extract the data from Headers, Parameters, or Both.
+
 =item Store these in vars.
+
 =item Run the provided coderef for the route.
+
 =item Add proper headers and change status to 206 if coderef was successful.
 
 =back
@@ -84,6 +88,7 @@ Vars:
 =over
 
 =item range - An arrayref of [start, end]
+
 =item range_unit - The Range Unit provided in the request.
 
 =back
@@ -93,7 +98,9 @@ In your response, you an optionally provide the following vars to customize resp
 =over
 
 =item total - The total count of items. Will be replaced with '*' if not provided.
+
 =item return_range - An arrayref of provided [start, end] values in your response. Original will be reused if not provided.
+
 =item return_range_unit - The unit of the range in your response. Original will be reused if not provided.
 
 =back

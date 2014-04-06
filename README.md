@@ -46,21 +46,21 @@ If set to both, headers will be preferred.
 The paginate keyword is used to add a pagination processing to a route. It will:
 
 - Check if the request is AJAX (and stop processing if set to ajax-only).
-=item Extract the data from Headers, Parameters, or Both.
-=item Store these in vars.
-=item Run the provided coderef for the route.
-=item Add proper headers and change status to 206 if coderef was successful.
+- Extract the data from Headers, Parameters, or Both.
+- Store these in vars.
+- Run the provided coderef for the route.
+- Add proper headers and change status to 206 if coderef was successful.
 
 Vars:
 
 - range - An arrayref of \[start, end\]
-=item range\_unit - The Range Unit provided in the request.
+- range\_unit - The Range Unit provided in the request.
 
 In your response, you an optionally provide the following vars to customize response:
 
 - total - The total count of items. Will be replaced with '\*' if not provided.
-=item return\_range - An arrayref of provided \[start, end\] values in your response. Original will be reused if not provided.
-=item return\_range\_unit - The unit of the range in your response. Original will be reused if not provided.
+- return\_range - An arrayref of provided \[start, end\] values in your response. Original will be reused if not provided.
+- return\_range\_unit - The unit of the range in your response. Original will be reused if not provided.
 
 # AUTHOR
 
