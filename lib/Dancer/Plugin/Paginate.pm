@@ -59,6 +59,36 @@ Controls if paginate will look for the pagination in the headers, parameters, or
 
 If set to both, headers will be preferred.
 
+=head3 Headers Mode
+
+Header mode will look for the following 2 Headers:
+
+=over
+
+=item Content-Range
+
+=item Range-Unit
+
+=back
+
+You can read more about these at L<http://www.ietf.org/rfc/rfc2616.txt> and
+L<http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p5-range-latest.html>.
+
+=head3 Parameters mode
+
+Parameters mode will look the following parameters in any of Dancer's
+parameter sources (query, route, or body):
+
+=over
+
+=item Start
+
+=item End
+
+=item Range-Unit
+
+=back
+
 =cut
 
 my $mode = $settings->{Mode} || 'headers';
@@ -75,7 +105,7 @@ The paginate keyword is used to add a pagination processing to a route. It will:
 
 =item Extract the data from Headers, Parameters, or Both.
 
-=item Store these in vars.
+=item Store these in vars (defined below).
 
 =item Run the provided coderef for the route.
 
@@ -176,7 +206,7 @@ sub _parse_headers {
     unless (defined $unit) {
         return {}; # Unit is required
     }
-    
+
     my ($start, $end) = split '-', $range;
     unless (defined $start && defined $end) {
         return {}; # If we can't parse the start and end, forget it.
