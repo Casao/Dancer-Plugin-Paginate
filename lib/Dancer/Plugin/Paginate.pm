@@ -12,11 +12,11 @@ Dancer::Plugin::Paginate - HTTP 1.1 Range-based Pagination for Dancer apps.
 
 =head1 VERSION
 
-Version 0.01
+Version 1.0.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '1.0.0';
 
 =head1 DESCRIPTION
 

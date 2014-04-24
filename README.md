@@ -4,7 +4,7 @@ Dancer::Plugin::Paginate - HTTP 1.1 Range-based Pagination for Dancer apps.
 
 # VERSION
 
-Version 0.01
+Version 1.0.0
 
 # DESCRIPTION
 
