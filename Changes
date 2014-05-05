@@ -1,5 +1,8 @@
 Revision history for Dancer-Plugin-Paginate
 
-0.1.0    Mar-23-2014
+1.0.1    May-05-2014
+         Added YAML as Test PreReq for BSD
+
+1.0.0    Mar-23-2014
          Plugin created
 
