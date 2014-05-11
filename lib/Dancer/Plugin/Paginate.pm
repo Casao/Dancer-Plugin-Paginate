@@ -26,11 +26,12 @@ Provides a simple wrapper to provide pagination of results via the HTTP 1.1 Rang
 
 =head1 SYNOPSIS
 
-To use, simply add the "paginate" keyword to any route that should support HTTP Range headers.
+To use, simply add the "paginate" keyword to any route that should support HTTP Range headers. The HTTP Request
+will be processed and Dancer session variables will be populated with the items being requested.
 
     use Dancer::Plugin::Paginate;
 
-    get '/secret' => paginate sub { ... }
+    get '/data' => paginate sub { ... }
     ...
 
 =head1 Configuration Options
@@ -42,6 +43,7 @@ my $settings = plugin_setting;
 =head2 Ajax-Only
 
 Options: I<true|false>
+
 Default: B<true>
 
 Determines if paginate should only operate on Ajax requests.
@@ -53,6 +55,7 @@ my $ajax_only = $settings->{'Ajax-Only'} || true;
 =head2 Mode
 
 Options: I<headers|parameters|both>
+
 Default: B<headers>
 
 Controls if paginate will look for the pagination in the headers, parameters, or both.
@@ -71,8 +74,12 @@ Header mode will look for the following 2 Headers:
 
 =back
 
+Both are required.
+
 You can read more about these at L<http://www.ietf.org/rfc/rfc2616.txt> and
 L<http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p5-range-latest.html>.
+
+Range-Unit will be returned to your app, but is not validated in any way.
 
 =head3 Parameters mode
 
@@ -88,6 +95,9 @@ parameter sources (query, route, or body):
 =item Range-Unit
 
 =back
+
+Start and End are required. Range-Unit will be populated with an empty string if not
+available.
 
 =cut
 
@@ -105,7 +115,7 @@ The paginate keyword is used to add a pagination processing to a route. It will:
 
 =item Extract the data from Headers, Parameters, or Both.
 
-=item Store these in vars (defined below).
+=item Store these in Dancer Session Variables (defined below).
 
 =item Run the provided coderef for the route.
 
@@ -117,17 +127,19 @@ Vars:
 
 =over
 
-=item range - An arrayref of [start, end]
+=item range_available - Boolean. Will return true if range was found.
+
+=item range - An arrayref of [start, end].
 
 =item range_unit - The Range Unit provided in the request.
 
 =back
 
-In your response, you an optionally provide the following vars to customize response:
+In your response, you an optionally provide the following Dancer Session Variables to customize response:
 
 =over
 
-=item total - The total count of items. Will be replaced with '*' if not provided.
+=item total - The total count of items. Will return '*' if not provided.
 
 =item return_range - An arrayref of provided [start, end] values in your response. Original will be reused if not provided.
 
@@ -166,6 +178,7 @@ sub paginate {
         }
         var range => [$range->{Start}, $range->{End}];
         var range_unit => $range->{Unit};
+        var range_available => true;
         my $content  = $coderef->();
         my $response = Dancer::SharedData->response;
         $response->content($content);
@@ -224,8 +237,8 @@ sub _parse_parameters {
     my $params = shift;
     my $start = $params->{'Start'};
     my $end = $params->{'End'};
-    my $unit = $params->{'Range-Unit'};
-    unless (defined $start && defined $end && defined $unit) {
+    my $unit = $params->{'Range-Unit'} || '';
+    unless (defined $start && defined $end) {
         return {};
     }
     my $results = {
@@ -255,7 +268,7 @@ You can find documentation for this module with the perldoc command.
 
 
 This is developed on GitHub - please feel free to raise issues or pull requests
-against the repo at:
+against the repo at: L<https://github.com/Casao/Dancer-Plugin-Paginate>.
 
 
 =head1 ACKNOWLEDGEMENTS
