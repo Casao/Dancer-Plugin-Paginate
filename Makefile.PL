@@ -8,7 +8,7 @@ WriteMakefile(
     AUTHOR           => q{Colin Ewen <colin@draecas.com>},
     VERSION_FROM     => 'lib/Dancer/Plugin/Paginate.pm',
     ABSTRACT_FROM    => 'lib/Dancer/Plugin/Paginate.pm',
-    LICENSE          => 'Artistic_2_0',
+    LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
     CONFIGURE_REQUIRES => {
