@@ -4,7 +4,7 @@ Dancer::Plugin::Paginate - HTTP 1.1 Range-based Pagination for Dancer apps.
 
 # VERSION
 
-Version 1.0.0
+Version 1.0.1
 
 # DESCRIPTION
 
@@ -14,11 +14,12 @@ Provides a simple wrapper to provide pagination of results via the HTTP 1.1 Rang
 
 # SYNOPSIS
 
-To use, simply add the "paginate" keyword to any route that should support HTTP Range headers.
+To use, simply add the "paginate" keyword to any route that should support HTTP Range headers. The HTTP Request
+will be processed and Dancer session variables will be populated with the items being requested.
 
     use Dancer::Plugin::Paginate;
 
-    get '/secret' => paginate sub { ... }
+    get '/data' => paginate sub { ... }
     ...
 
 # Configuration Options
@@ -26,14 +27,16 @@ To use, simply add the "paginate" keyword to any route that should support HTTP 
 ## Ajax-Only
 
 Options: _true|false_
-Default: __true__
+
+Default: **true**
 
 Determines if paginate should only operate on Ajax requests.
 
 ## Mode
 
 Options: _headers|parameters|both_
-Default: __headers__
+
+Default: **headers**
 
 Controls if paginate will look for the pagination in the headers, parameters, or both.
 
@@ -46,8 +49,12 @@ Header mode will look for the following 2 Headers:
 - Content-Range
 - Range-Unit
 
+Both are required.
+
 You can read more about these at [http://www.ietf.org/rfc/rfc2616.txt](http://www.ietf.org/rfc/rfc2616.txt) and
 [http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p5-range-latest.html](http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p5-range-latest.html).
+
+Range-Unit will be returned to your app, but is not validated in any way.
 
 ### Parameters mode
 
@@ -58,6 +65,9 @@ parameter sources (query, route, or body):
 - End
 - Range-Unit
 
+Start and End are required. Range-Unit will be populated with an empty string if not
+available.
+
 # Keywords
 
 ## paginate
@@ -66,18 +76,19 @@ The paginate keyword is used to add a pagination processing to a route. It will:
 
 - Check if the request is AJAX (and stop processing if set to ajax-only).
 - Extract the data from Headers, Parameters, or Both.
-- Store these in vars (defined below).
+- Store these in Dancer Session Variables (defined below).
 - Run the provided coderef for the route.
 - Add proper headers and change status to 206 if coderef was successful.
 
 Vars:
 
-- range - An arrayref of \[start, end\]
+- range\_available - Boolean. Will return true if range was found.
+- range - An arrayref of \[start, end\].
 - range\_unit - The Range Unit provided in the request.
 
-In your response, you an optionally provide the following vars to customize response:
+In your response, you an optionally provide the following Dancer Session Variables to customize response:
 
-- total - The total count of items. Will be replaced with '\*' if not provided.
+- total - The total count of items. Will return '\*' if not provided.
 - return\_range - An arrayref of provided \[start, end\] values in your response. Original will be reused if not provided.
 - return\_range\_unit - The unit of the range in your response. Original will be reused if not provided.
 
@@ -98,7 +109,7 @@ You can find documentation for this module with the perldoc command.
     perldoc Dancer::Plugin::Paginate
 
 This is developed on GitHub - please feel free to raise issues or pull requests
-against the repo at:
+against the repo at: [https://github.com/Casao/Dancer-Plugin-Paginate](https://github.com/Casao/Dancer-Plugin-Paginate).
 
 # ACKNOWLEDGEMENTS
 
