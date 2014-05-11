@@ -20,8 +20,7 @@ diag sprintf "Testing Paginate version %s under Dancer %s",
     $Dancer::Plugin::Paginate::VERSION,
     $Dancer::VERSION;
 
-response_status_is [GET => '/'], 200, "Ignores non-ajax requests";
-response_content_is [GET => '/'], "Index ok", "Non-ajax content is unaffected";
+response_content_is [GET => '/'], "Index ok", "Does nothing on requests without range";
 
 
 my $headers = [

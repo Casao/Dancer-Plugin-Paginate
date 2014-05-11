@@ -4,13 +4,16 @@ set session => 'simple';
 
 use Dancer::Plugin::Paginate;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2.0';
 
 get '/' => paginate sub {
-    return 'Index ok';
+    my $available = var 'range_available';
+    return 'Index ok' unless $available;
 };
 
 get '/page' => paginate sub {
+    my $available = var 'range_available';
+    return "Failure" unless $available;
     my $range = var 'range';
     my $unit = var 'range_unit';
     content_type 'application/json';
