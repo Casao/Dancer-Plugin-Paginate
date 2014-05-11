@@ -21,7 +21,8 @@ WriteMakefile(
         'Dancer' => 0
     },
     TEST_REQUIRES => {
-        'YAML' => 0
+        'YAML' => 0,
+        'JSON' => 0
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Dancer-Plugin-Paginate-*' },
